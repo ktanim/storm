@@ -1,0 +1,121 @@
+buildscript {
+	ext {
+		springBootVersion = '1.5.2.RELEASE'
+	}
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+
+
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'eclipse'
+apply plugin: 'application'
+apply plugin: 'org.springframework.boot'
+
+mainClassName = "com.secl.kafka.spring.MyConsumer"
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+version = '0.1'
+group = "net.celloscope.antarika"
+
+jar {
+	baseName = 'spring-kafka-demo'
+	version =  '1.0.0'
+}
+
+ext {
+	guavaVersion='20.+'
+	gsonVersion='2.3.1'
+	springFrameworkVersion='4.2.9.RELEASE'
+}
+
+repositories {
+	jcenter()
+	mavenLocal()
+	mavenCentral()
+	maven { url "http://repo.spring.io/release" }
+	maven { url "http://repo.spring.io/milestone" }
+	maven { url "http://repo.spring.io/snapshot" }
+}
+
+
+dependencies {
+	// Logback
+	compile "org.tuxdude.logback.extensions:logback-colorizer:1.0.1"
+	compile "org.fusesource.jansi:jansi:1.11"
+	
+	// Utility
+	compile "com.google.guava:guava:${project.ext.guavaVersion}"
+	compile "com.google.code.gson:gson:${project.ext.gsonVersion}"
+	compile "commons-io:commons-io:2.4"
+	compile "org.json:json:20090211"
+	compile "org.projectlombok:lombok:1.16.12"
+	compile "commons-logging:commons-logging:1.2"
+	compile "com.fasterxml.jackson.core:jackson-databind:2.8.7"
+
+
+	compile "org.springframework.kafka:spring-kafka:1.1.2.RELEASE"
+	compile("org.springframework.boot:spring-boot-starter")
+	
+	testCompile "junit:junit:4.11"
+	testCompile("org.springframework.boot:spring-boot-starter-test")
+	testCompile "org.springframework.kafka:spring-kafka-test:1.1.2.RELEASE"
+
+
+	// Spring
+    //compile "org.springframework:spring-core:${project.ext.springFrameworkVersion}"
+	//compile "org.springframework:spring-web:${project.ext.springFrameworkVersion}"
+	//compile "org.springframework:spring-context:${project.ext.springFrameworkVersion}"
+    //compile "org.springframework:spring-jdbc:${project.ext.springFrameworkVersion}"
+    //compile "org.springframework:spring-context-support:${project.ext.springFrameworkVersion}"
+    //compile "org.springframework:spring-tx:${project.ext.springFrameworkVersion}"
+
+
+}
+
+sourceSets {
+	main {
+        java {
+            srcDir 'src/java'
+        }
+        resources {
+            srcDir 'src/resources'
+        }
+    }
+	test {
+        java {
+            srcDir 'src/java'
+        }
+        resources {
+            srcDir 'src/resources'
+        }
+    }
+	conf {
+        java {
+            srcDir 'src/dist/conf'
+        }
+    }
+}
+
+startScripts {
+    doLast {
+        def winScriptFile  = file getWindowsScript()
+        def winFileText = winScriptFile.text
+        winFileText = winFileText.replaceAll('set CLASSPATH=.*', 'rem original CLASSPATH declaration replaced by:\nset CLASSPATH=%APP_HOME%\\\\conf;%APP_HOME%\\\\lib\\\\\\*')
+        winScriptFile.text = winFileText
+
+        def unixScriptFile  = file getUnixScript()
+        def unixFileText = unixScriptFile.text
+        def classpath = 'CLASSPATH=$APP_HOME/conf:$APP_HOME/lib/*'
+        unixFileText = unixFileText.replaceAll('CLASSPATH=.*', java.util.regex.Matcher.quoteReplacement( classpath ))
+        unixScriptFile.text = unixFileText
+    }
+}
+

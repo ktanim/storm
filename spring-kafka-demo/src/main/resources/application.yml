@@ -1,0 +1,7 @@
+kafka:
+  brokerAddress: localhost:9092
+  topic: test
+  fooTopic: test
+spring:
+  jmx:
+    enabled: false
